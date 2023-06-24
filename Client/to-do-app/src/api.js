@@ -12,6 +12,10 @@ const apiClient = axios.create({
 export default {
     getTodos() {
         return apiClient.get('/Todos');
+    },
+
+    createTodo(newTodo) {
+        return apiClient.post('/Todos', newTodo)
     }
     // other methods for POST, PUT, DELETE etc. if required
     
