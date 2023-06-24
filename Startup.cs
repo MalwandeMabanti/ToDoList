@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ToDoList.Data;
+using ToDoList.Interfaces;
+using ToDoList.Services;
 
 namespace ToDoList
 {
@@ -18,16 +20,18 @@ namespace ToDoList
 
             services.AddControllers();
 
+            services.AddScoped<ITodoService, TodoService>();
+
             services.AddEndpointsApiExplorer();
 
             services.AddSwaggerGen();
 
             services.AddCors(options => 
             {
-                options.AddPolicy("AllowSpecificOrigin",
+                options.AddPolicy("AllowAll",
                     builder =>
                     {
-                        builder.WithOrigins("http://FrontEndDomain.com")
+                        builder.AllowAnyOrigin()
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                     });
@@ -48,7 +52,7 @@ namespace ToDoList
             app.UseHttpsRedirection();
 
             // Add these before the app.Endpoints() line:
-            app.UseCors("AllowSpecificOrigin");
+            app.UseCors("AllowAll");
 
             app.UseRouting();
 

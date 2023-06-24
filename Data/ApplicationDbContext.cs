@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using ToDoList.Models;
 
 namespace ToDoList.Data
@@ -13,5 +14,16 @@ namespace ToDoList.Data
         public DbSet<Todo> Todo { get; set; }
 
 
+    }
+
+    public class BloggingContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+    {
+        public ApplicationDbContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=master;");
+
+            return new ApplicationDbContext(optionsBuilder.Options);
+        }
     }
 }
