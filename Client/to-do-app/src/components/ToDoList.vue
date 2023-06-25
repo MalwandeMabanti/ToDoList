@@ -1,13 +1,16 @@
 <template>
     <div>
         <form @submit.prevent="addTodo">
-            <input v-model="newTodo" type="text" placeholder="New Todo" />
+            <input v-model="newTodo.title" type="text" placeholder="New Todo Title" />
+            <input v-model="newTodo.description" type="text" placeholder="New Todo Description" />
             <button type="submit">Add Todo</button>
         </form>
         
         <ul>
             <li v-for="todo in todos" :key="todo.id">
                 {{todo.title}}
+                {{todo.description}}
+                
 
                 <button @click="editTodo">Edit</button>
 
@@ -28,16 +31,22 @@
         data() {
             return {
                 todos: [],
-                newTodo: ''
+                newTodo: {
+                    title: '',
+                    description: '',
+                }
             };
         },
 
         methods: {
             addTodo() {
-                if (this.newTodo.trim() !== '') {
-                    api.createTodo({ title: this.newTodo }).then(response => {
+                if (this.newTodo.title.trim() !== '' && this.newTodo.description.trim) {
+                    api.createTodo( this.newTodo ).then(response => {
                         this.todos.push(response.data);
-                        this.newTodo = '';
+                        this.newTodo = {
+                            title: '',
+                            description: '',
+                        };
                     })
                 }
             },
