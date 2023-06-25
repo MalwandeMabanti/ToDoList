@@ -2,7 +2,6 @@
     <h2>Add a ToDo</h2>
     <div>
         <form @submit.prevent="addTodo">
-            <input v-model="newTodo.title" type="text" placeholder="New Todo Title" />
             <input v-model="newTodo.description" type="text" placeholder="New Todo Description" />
             <button type="submit">Add Todo</button>
         </form>
@@ -14,19 +13,32 @@
                     <th>Title</th>
                     <th>Description</th>
                     <th>Completed</th>
-                    <th>Edit</th>
+                    
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="todo in todos" :key="todo.id">
-                    <td>{{ todo.title }}</td>
-                    <td>{{ todo.description }}</td>
+
+                    <td v-if="!todo.isEditing">
+                        {{ todo.title }}
+                        <button @click="editTodo(todo)">Edit</button>
+                    </td>
+                    <td v-else>
+                        <input v-model="todo.title" type="text" @blur="updateTodo(todo)" />
+                    </td>
+
+                    <td v-if="!todo.isEditing">
+                        {{ todo.description }}
+                    </td>
+                    <td v-else>
+                        <input v-model="todo.description" type="text" @blur="updateTodo(todo)" />
+                    </td>
+
+
                     <td>
                         <input type="checkbox" @change="removeTodo(todo)" />
                     </td>
-                    <td>
-                        <button v-if="!todo.isEditing" @click="editTodo(todo)">Edit</button>
-                    </td>
+
                 </tr>
             </tbody>
         </table>
@@ -49,15 +61,15 @@
 
         methods: {
             addTodo() {
-                if (this.newTodo.title.trim() !== '' && this.newTodo.description.trim()) {
-                    api.createTodo( this.newTodo ).then(response => {
-                        this.todos.push(response.data);
-                        this.newTodo = {
-                            title: '',
-                            description: '',
-                        };
-                    })
-                }
+                
+                api.createTodo( this.newTodo ).then(response => {
+                    this.todos.push(response.data);
+                    this.newTodo = {
+                        title: '',
+                        description: '',
+                    };
+                })
+                
             },
 
             getTodos() {
@@ -65,22 +77,30 @@
                     this.todos = response.data.map(todo => ({
                         ...todo,
                         isEditing: false,
-                        editingText: '',
+                        editingText: todo.title,
                     }))
                 })
             },
 
             editTodo(todo) {
                 todo.isEditing = true;
-                todo.editingText = todo.title;
             },
 
             updateTodo(todo) {
-                todo.isEditing = false;
-                api.updateTode(todo).then(response => {
-                    console.log(response);
-                })
+                api.updateTodo(todo).then((response) => {
+                    const index = this.todos.findIndex((t) => t.id === response.data.id);
+                    if (this.todos[index]) {
+                        
+                        this.$set(this.todos, index, response.data);
+                        this.$set(this.todos[index], 'isEditing', false);
+                        
+                        this.todos.forEach((_, i) => {
+                            this.$set(this.todos[i], 'editingText', '');
+                        });
+                    }
                     
+                    
+                });
             },
 
             removeTodo(todo) {

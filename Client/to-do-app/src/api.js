@@ -18,8 +18,8 @@ export default {
         return apiClient.post('/Todos', newTodo)
     },
 
-    updateTode(todo) {
-        return apiClient.post(`/Todos/${todo.id}`)
+    updateTodo(todo) {
+        return apiClient.put(`/Todos/${todo.id}`, JSON.stringify(todo));
     },
 
     removeTodo(todo) {
