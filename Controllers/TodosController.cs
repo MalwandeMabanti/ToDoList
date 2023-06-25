@@ -10,7 +10,6 @@ namespace ToDoList.Controllers
     [ApiController]
     public class TodosController : ControllerBase
     {
-        //private static List<Todo> _todos = new List<Todo>();
         private readonly ITodoService _todoService;
 
         public TodosController(ITodoService todoService) 
@@ -51,8 +50,6 @@ namespace ToDoList.Controllers
         [HttpPut("{id}")]
         public IActionResult PutTodo(long id, Todo todo) 
         {
-            //todo.Id = _todoService.GetTodoById(id);
-
             if (id != todo.Id) 
             {
                 return BadRequest();
