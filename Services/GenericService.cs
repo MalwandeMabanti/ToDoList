@@ -30,6 +30,20 @@ namespace ToDoList.Services
             this.context.SaveChanges();
         }
 
+        public void UpdateTodo(T entity)
+        {
+            this.context.Set<T>().Attach(entity);
+            this.context.Entry(entity).State = EntityState.Modified;
+            this.context.SaveChanges();
+        }
+
+        public void DeleteTodo(int id)
+        {
+            T? entity = this.context.Set<T>().Find(id);
+            this.context.Set<T>().Remove(entity!);
+            this.context.SaveChanges();
+        }
+
 
     }
 

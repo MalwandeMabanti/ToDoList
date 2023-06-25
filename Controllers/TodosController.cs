@@ -1,5 +1,6 @@
 ﻿//using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ToDoList.Interfaces;
 using ToDoList.Models;
 
@@ -46,29 +47,44 @@ namespace ToDoList.Controllers
             return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
         }
 
-        /// PUT: api/todos/{id}
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutTodo(int id, Todo todo) 
-        //{
-        //    if (id == todo.Id) 
-        //    {
-        //        return BadRequest();
-        //    }
+        // PUT: api/todos/{id}
+        [HttpPut("{id}")]
+        public IActionResult PutTodo(int id, Todo todo) 
+        {
+            //todo.Id = _todoService.GetTodoById(id);
 
-        //   await _todoService.AddTodoAsync(todo);
+            if (id != todo.Id) 
+            {
+                return BadRequest();
+            }
 
-        //    return NoContent();
+            //try
+            //{
+            //    _todoService.AddTodo(todo);
+            //}
+            //catch (DbUpdateConcurrencyException) 
+            //{
+                
+            //}
 
-        //}
+           _todoService.UpdateTodo(todo);
 
-        //// DELETE: api/todos/{id}
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteTodo(int id) 
-        //{
+            return NoContent();
 
-        //    await _todoService.DeleteTodoAsync(id);
+        }
 
-        //    return NoContent();
-        //}
+        // DELETE: api/todos/{id}
+        [HttpDelete("{id}")]
+        public IActionResult DeleteTodo(int id)
+        {
+            var model = new Todo 
+            { 
+                Id = id
+            };
+
+            _todoService.DeleteTodo(model.Id);
+
+            return NoContent();
+        }
     }
 }

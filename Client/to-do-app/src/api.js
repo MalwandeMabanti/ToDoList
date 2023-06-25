@@ -16,6 +16,14 @@ export default {
 
     createTodo(newTodo) {
         return apiClient.post('/Todos', newTodo)
+    },
+
+    updateTode(todo) {
+        return apiClient.post(`/Todos/${todo.id}`)
+    },
+
+    removeTodo(todo) {
+        return apiClient.delete(`/Todos/${todo.id}`)
     }
     // other methods for POST, PUT, DELETE etc. if required
     

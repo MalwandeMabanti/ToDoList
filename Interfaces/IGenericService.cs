@@ -11,7 +11,9 @@ namespace ToDoList.Interfaces
 
         void AddTodo(T entity);
 
+        void UpdateTodo(T entity);
 
+        void DeleteTodo(int id);
 
     }
 }
