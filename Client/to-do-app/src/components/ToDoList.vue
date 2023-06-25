@@ -1,26 +1,35 @@
 <template>
+    <h2>Add a ToDo</h2>
     <div>
         <form @submit.prevent="addTodo">
             <input v-model="newTodo.title" type="text" placeholder="New Todo Title" />
             <input v-model="newTodo.description" type="text" placeholder="New Todo Description" />
             <button type="submit">Add Todo</button>
         </form>
-        
-        <ul>
-            <li v-for="todo in todos" :key="todo.id">
-                {{todo.title}}
-                {{todo.description}}
-                
-
-                <button @click="editTodo">Edit</button>
-
-                <div v-if="todo.isEditing">
-                    <input type="text" v-model="todo.editingText" />
-                    <button @click="updateTodo(todo)">Save</button>
-                </div>
-                <input type="checkbox" @change="removeTodo(todo)"/>
-            </li>
-        </ul>
+        <br />
+        <br />
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Completed</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="todo in todos" :key="todo.id">
+                    <td>{{ todo.title }}</td>
+                    <td>{{ todo.description }}</td>
+                    <td>
+                        <input type="checkbox" @change="removeTodo(todo)" />
+                    </td>
+                    <td>
+                        <button v-if="!todo.isEditing" @click="editTodo(todo)">Edit</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -40,7 +49,7 @@
 
         methods: {
             addTodo() {
-                if (this.newTodo.title.trim() !== '' && this.newTodo.description.trim) {
+                if (this.newTodo.title.trim() !== '' && this.newTodo.description.trim()) {
                     api.createTodo( this.newTodo ).then(response => {
                         this.todos.push(response.data);
                         this.newTodo = {

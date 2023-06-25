@@ -4,6 +4,7 @@ namespace ToDoList.Interfaces
 {
     public interface ITodoService : IGenericService<Todo>
     {
+        public bool TodoItemExists(long id);
         //List<Todo> GetAllTodos();
         //Task<Todo> GetTodoByIdAsync(int id);
 

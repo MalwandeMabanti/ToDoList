@@ -49,7 +49,7 @@ namespace ToDoList.Controllers
 
         // PUT: api/todos/{id}
         [HttpPut("{id}")]
-        public IActionResult PutTodo(int id, Todo todo) 
+        public IActionResult PutTodo(long id, Todo todo) 
         {
             //todo.Id = _todoService.GetTodoById(id);
 
@@ -58,16 +58,21 @@ namespace ToDoList.Controllers
                 return BadRequest();
             }
 
-            //try
-            //{
-            //    _todoService.AddTodo(todo);
-            //}
-            //catch (DbUpdateConcurrencyException) 
-            //{
-                
-            //}
-
-           _todoService.UpdateTodo(todo);
+            try
+            {
+                _todoService.UpdateTodo(todo);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_todoService.TodoItemExists(id)) 
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return NoContent();
 
@@ -86,5 +91,7 @@ namespace ToDoList.Controllers
 
             return NoContent();
         }
+
+        
     }
 }
