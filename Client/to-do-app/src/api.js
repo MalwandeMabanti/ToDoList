@@ -1,7 +1,7 @@
 ﻿import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'https://localhost:7142/api', // Replace with your API's base URL
+    baseURL: 'https://localhost:7142/api', 
     withCredentials: false,
     headers: {
         Accept: 'application/json',
@@ -25,8 +25,6 @@ export default {
     removeTodo(todo) {
         return apiClient.delete(`/Todos/${todo.id}`)
     }
-    // other methods for POST, PUT, DELETE etc. if required
-    
 };
 
 
