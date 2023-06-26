@@ -2,10 +2,10 @@
     <h2>Add a ToDo</h2>
     <div>
         <form @submit.prevent="addTodo">
-           
+
             <input class="title-input" v-model="newTodo.title" type="text" placeholder="New Todo Title" /><br/>
             <br />
-            <input class="description-input" v-model="newTodo.description" type="text" placeholder="New Todo Description" /><br />
+            <textarea class="description-input" v-model="newTodo.description" placeholder="New Todo Description"></textarea><br />
             <button type="submit">Add Todo</button>
         </form>
         <table>
@@ -110,7 +110,7 @@
 </script>
 <style scoped>
     th {
-        padding: 120px;
+        padding: 40px;
     }
 
     td {
@@ -121,6 +121,13 @@
         width: 300px;
         height: 50px;
         padding: 10px;
+    }
+
+    .description-input {
+        resize: none; 
+        overflow: hidden; 
+        min-height: 50px; 
+        max-height: 200px; 
     }
 
     .title-input {
