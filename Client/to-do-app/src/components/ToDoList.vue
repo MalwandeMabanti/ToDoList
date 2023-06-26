@@ -141,6 +141,10 @@
         width: 20px;
     }
 
+    td {
+        height: auto;
+    }
+
 
 
     
