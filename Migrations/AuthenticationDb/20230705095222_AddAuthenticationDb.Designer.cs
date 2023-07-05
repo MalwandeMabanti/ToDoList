@@ -12,7 +12,7 @@ using ToDoList;
 namespace ToDoList.Migrations.AuthenticationDb
 {
     [DbContext(typeof(AuthenticationDbContext))]
-    [Migration("20230704204801_AddAuthenticationDb")]
+    [Migration("20230705095222_AddAuthenticationDb")]
     partial class AddAuthenticationDb
     {
         /// <inheritdoc />
@@ -181,7 +181,7 @@ namespace ToDoList.Migrations.AuthenticationDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LasttName")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -28,12 +28,17 @@ public class AuthenticationController : ControllerBase
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] Register model)
     {
-        var user = new ToDoUser { UserName = model.Email, Email = model.Email };
+        var user = new ToDoUser { 
+            UserName = model.Email, 
+            Email = model.Email,
+            FirstName = model.FirstName,
+            LastName = model.LastName,  
+        };
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (result.Succeeded)
         {
-            return Ok();
+            return Ok(new {token = GenerateJsonWebToken(user)});
         }
         else
         {
@@ -65,5 +70,23 @@ public class AuthenticationController : ControllerBase
             return Ok(new { Token = tokenString });
         }
         return Unauthorized();
+    }
+
+    private string GenerateJsonWebToken(ToDoUser user)
+    {
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[] {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        };
+
+        var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
+            _configuration["Jwt:Issuer"],
+            claims,
+            expires: DateTime.Now.AddMinutes(120),
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
