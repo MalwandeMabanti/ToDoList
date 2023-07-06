@@ -1,11 +1,16 @@
 <template>
     <h2>Add a ToDo</h2>
+    <button @click="logout">Logout</button>
     <div>
+        
         <form @submit.prevent="addTodo">
 
-            <input class="title-input" v-model="newTodo.title" type="text" placeholder="New Todo Title" /><br/>
+            <input class="title-input" v-model="newTodo.title" type="text" placeholder="New Todo Title" /><br />
             <br />
             <textarea class="description-input" v-model="newTodo.description" placeholder="New Todo Description"></textarea><br />
+            <label for="image">Select image:</label>
+            <input id="image" type="file" @change="onImage"/>
+            <br />
             <button type="submit">Add Todo</button>
         </form>
         <table>
@@ -15,7 +20,7 @@
                     <th>Description</th>
                     <th class="completed-column">Completed</th>
                     <th class="edit-column">Edit</th>
-                    
+
                 </tr>
             </thead>
             <tbody>
@@ -39,11 +44,13 @@
                 </tr>
             </tbody>
         </table>
+
     </div>
 </template>
 
 <script>
     import { ref, reactive, onMounted } from 'vue';
+    import { useRouter } from 'vue-router';
     import api from '../api';
 
     export default {
@@ -52,14 +59,18 @@
             const newTodo = reactive({
                 title: '',
                 description: '',
-                userid: ''
+                userid: '',
+                image: '',
             });
+            const router = useRouter();
 
             const addTodo = () => {
                 api.createTodo(newTodo).then((response) => {
                     todos.value.push(response.data);
                     newTodo.title = '';
                     newTodo.description = '';
+                    newTodo.userid = '';
+                    newTodo.image = '';
                 });
             };
 
@@ -94,6 +105,12 @@
                 });
             };
 
+            const logout = () => {
+                console.log("Token being removed is:", localStorage.getItem('token'));
+                localStorage.removeItem('token');
+                router.push('/login');
+            }
+
             onMounted(getTodos);
 
             return {
@@ -104,6 +121,7 @@
                 editTodo,
                 updateTodo,
                 removeTodo,
+                logout,
             };
         },
     };
