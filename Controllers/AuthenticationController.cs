@@ -16,12 +16,14 @@ public class AuthenticationController : ControllerBase
     private readonly UserManager<ToDoUser> _userManager;
     private readonly SignInManager<ToDoUser> _signInManager;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthenticationController> _logger;
 
-    public AuthenticationController(UserManager<ToDoUser> userManager, SignInManager<ToDoUser> signInManager, IConfiguration configuration)
+    public AuthenticationController(UserManager<ToDoUser> userManager, SignInManager<ToDoUser> signInManager, IConfiguration configuration, ILogger<AuthenticationController> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _logger = logger;
     }
 
     // POST api/authentication/register
@@ -53,21 +55,12 @@ public class AuthenticationController : ControllerBase
         var user = await _userManager.FindByNameAsync(model.Email);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+            var token = GenerateJsonWebToken(user);
 
-            return Ok(new { Token = tokenString });
+            _logger.LogInformation($"Token before sending to client: {token}");
+            
+
+            return Ok(new { Token = token});
         }
         return Unauthorized();
     }
@@ -78,7 +71,7 @@ public class AuthenticationController : ControllerBase
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[] {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
         var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],

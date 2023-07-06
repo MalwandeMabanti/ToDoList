@@ -1,27 +1,35 @@
 ﻿//using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using ToDoList.Interfaces;
 using ToDoList.Models;
 
 namespace ToDoList.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TodosController : ControllerBase
     {
         private readonly ITodoService _todoService;
+        //string useThis = "35d1b892-75e4-4b2f-895e-558a24f495df";
 
         public TodosController(ITodoService todoService) 
         {
             _todoService = todoService;
         }
 
-        // GET: api/todos
+        /// GET: api/todos
         [HttpGet]
-        public IEnumerable<Todo> GetTodos()
+        public ActionResult<IEnumerable<Todo>> GetTodos()
         {
-            return _todoService.GetAllTodos();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //string userId = useThis;
+            var todos = _todoService.GetTodosByUserId(userId);
+
+            return Ok(todos);
         }
 
 
@@ -29,66 +37,69 @@ namespace ToDoList.Controllers
         [HttpGet("{id}")]
         public ActionResult<Todo> GetTodo(int id)
         {
-            var todo = _todoService.GetTodoById(id);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //string userId = useThis;
+            var todo = _todoService.GetTodoById(id, userId);
 
             if (todo == null)
             {
                 return NotFound();
             }
+
             return Ok(todo);
         }
 
         [HttpPost]
         public ActionResult<Todo> PostTodo(Todo todo)
         {
-            _todoService.AddTodo(todo);
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
+                Console.WriteLine($"User ID: {userId}");
+
+                todo.UserId = userId;
+
+                _todoService.AddTodo(todo, userId);
+
+                return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
+            return Ok();
+            
         }
 
         // PUT: api/todos/{id}
         [HttpPut("{id}")]
-        public IActionResult PutTodo(long id, Todo todo) 
+        public IActionResult PutTodo(int id, Todo todo)
         {
-            if (id != todo.Id) 
+            if (id != todo.Id)
             {
                 return BadRequest();
             }
 
-            try
-            {
-                _todoService.UpdateTodo(todo);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_todoService.TodoItemExists(id)) 
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //string userId = useThis;
+            _todoService.UpdateTodo(todo, userId);
+            
             return NoContent();
-
         }
 
         // DELETE: api/todos/{id}
         [HttpDelete("{id}")]
         public IActionResult DeleteTodo(int id)
         {
-            var model = new Todo 
-            { 
-                Id = id
-            };
-
-            _todoService.DeleteTodo(model.Id);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //string userId = useThis;
+            _todoService.DeleteTodo(id, userId);
 
             return NoContent();
         }
 
-        
+
     }
 }

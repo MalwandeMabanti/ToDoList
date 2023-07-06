@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ToDoList.Models
 {
@@ -12,5 +13,8 @@ namespace ToDoList.Models
         public string? Description { get; set; }
 
         
+        public string UserId { get; set; }
+
+
     }
 }

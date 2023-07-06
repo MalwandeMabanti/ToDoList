@@ -38,16 +38,18 @@
                         Email: this.loginEmail,
                         Password: this.loginPassword,
                     });
-                    console.log(response, "And something else");
-                    console.log(response.data.token, "This is your token")
 
+                    if (response.status === 200) {
+                        console.log("Yey!! You have manage to log in")
+
+                    }
                     if (response.status === 200) {
                         this.$router.push('/todolist');
                     }
-                    else {
-                        this.$router.push('/');
-                    }
-                    return response.status; // Success status code, e.g., 200
+                    //else {
+                    //    this.$router.push('/');
+                    //}
+                    //return response.status; // Success status code, e.g., 200
 
                     
                 } catch (error) {
