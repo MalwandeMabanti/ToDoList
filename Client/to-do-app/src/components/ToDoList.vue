@@ -60,7 +60,7 @@
                 title: '',
                 description: '',
                 userid: '',
-                image: '',
+                
             });
             const router = useRouter();
 
@@ -70,7 +70,6 @@
                     newTodo.title = '';
                     newTodo.description = '';
                     newTodo.userid = '';
-                    newTodo.image = '';
                 });
             };
 
