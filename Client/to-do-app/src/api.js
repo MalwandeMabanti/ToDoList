@@ -33,8 +33,8 @@ export default {
         return apiClient.post('/Todos', formData);
     },
 
-    updateTodo(todo) {
-        return apiClient.put(`/Todos/${todo.id}`, JSON.stringify(todo));
+    updateTodo(formData) {
+        return apiClient.put(`/Todos/${formData.get('id')}`, formData);
     },
 
     removeTodo(todo) {

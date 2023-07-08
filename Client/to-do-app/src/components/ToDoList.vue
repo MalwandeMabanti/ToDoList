@@ -42,7 +42,8 @@
                         <button @click="editTodo(todo)">{{todo.isEditing ? 'Save' : 'Edit'}}</button>
                     </td>
                     <td>
-                        <img :src="todo.imageUrl" class="todo-image"/>
+                        <img v-if="!todo.isEditing" :src="todo.imageUrl" class="todo-image" />
+                        <input v-if="todo.isEditing" type="file" @change="onEditFileChange(todo, $event)"/>
                     </td>
                 </tr>
             </tbody>
@@ -85,6 +86,8 @@
             };
 
             const onFileChange = (e) => {
+                console.log(e.target.files[0], "An image was uploaded");
+
                 newTodo.file = e.target.files[0];
             }
 
@@ -101,18 +104,54 @@
 
             const editTodo = (todo) => {
                 todo.isEditing = true;
+                todo.file = null;
             };
 
+
+            const onEditFileChange = (todo, e) => {
+                //console.log(todo, "An image was changed");
+                //console.log(e.target.files[0], "An image was changed for event");
+                //todo.file = e.target.files[0];
+
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    todo.imageUrl = e.target.result;
+                    updateTodo(todo)
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+
             const updateTodo = (todo) => {
-                api.updateTodo(todo).then((response) => {
+                //console.log(todo);
+                //console.log(todo);
+
+
+                let formData = new FormData();
+                formData.append('id', todo.id);
+                //console.log(todo.id, " Is your id");
+                formData.append('title', todo.title);
+                //console.log(todo.title);
+                formData.append('description', todo.description);
+                //console.log(todo.description);
+
+                formData.append('image', todo.imageUrl);
+                console.log(todo.imageUrl);
+                
+
+                api.updateTodo(formData).then((response) => {
                     const index = todos.value.findIndex((t) => t.id === response.data.id);
                     if (todos.value[index]) {
                         todos.value.splice(index, 1, response.data);
                         todos.value[index].isEditing = false;
                         todos.value[index].editingText = '';
                     }
+                    todo.imageUrl = response.data.imageUrl;
                 });
             };
+
+
+
+
 
             const removeTodo = (todo) => {
                 api.removeTodo(todo).then(() => {
@@ -138,6 +177,7 @@
                 updateTodo,
                 removeTodo,
                 logout,
+                onEditFileChange,
             };
         },
     };

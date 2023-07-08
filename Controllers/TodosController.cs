@@ -71,6 +71,8 @@ namespace ToDoList.Controllers
 
             if (todoViewModel.Image != null)
             {
+                Console.WriteLine(Guid.NewGuid().ToString() + " Guid.NewGuid().ToString()");
+                Console.WriteLine(Path.GetExtension(todoViewModel.Image.FileName) + " Path.GetExtension(todoViewModel.Image.FileName)");
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(todoViewModel.Image.FileName);
 
                 // Pass the container name to the UploadFileAsync method
@@ -92,15 +94,39 @@ namespace ToDoList.Controllers
         }
 
         // PUT: api/todos/{id}
-        [HttpPut("{id}")]
-        public IActionResult PutTodo(int id, Todo todo)
+        [HttpPut("{id}"), Consumes("multipart/form-data")]
+        public async Task<IActionResult> PutTodo(int id, [FromForm]TodoViewModel todoViewModel)
         {
-            if (id != todo.Id)
+            if (id != todoViewModel.Id)
             {
                 return BadRequest();
             }
 
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+            string imageUrl = null;
+
+            // Retrieve the container name from your configuration
+            string containerName = _configuration.GetValue<string>("Azure:BlobStorage:ContainerName");
+
+            if (todoViewModel.Image != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(todoViewModel.Image.FileName);
+
+                // Pass the container name to the UploadFileAsync method
+                imageUrl = await _azureBlobService.UploadFileAsync(containerName, todoViewModel.Image, fileName);
+            }
+
+            // After that, you can create the Todo object and populate the fields with the ViewModel data
+            Todo todo = new Todo
+            {
+                Id = todoViewModel.Id,
+                Title = todoViewModel.Title,
+                Description = todoViewModel.Description,
+                UserId = userId,
+                ImageUrl = imageUrl
+            };
 
 
             _todoService.UpdateTodo(todo, userId);
