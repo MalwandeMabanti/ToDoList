@@ -1,54 +1,44 @@
 <template>
-    <h2>Add a ToDo</h2>
-    <button @click="logout">Logout</button>
     <div>
-        
-        <form @submit.prevent="addTodo">
+        <h2>Add a ToDo</h2>
+        <button @click="logout">Logout</button>
+        <div>
 
-            <input class="title-input" v-model="newTodo.title" type="text" placeholder="New Todo Title" /><br />
-            <br />
-            <textarea class="description-input" v-model="newTodo.description" placeholder="New Todo Description"></textarea><br />
-            <label for="image">Select image:</label>
-            <input id="image" type="file" @change="onFileChange" />
-            <br />
-            <button type="submit">Add Todo</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th class="completed-column">Completed</th>
-                    <th class="edit-column">Edit</th>
-                    <th>Images</th>
+            <form @submit.prevent="addTodo">
 
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="todo in todos" :key="todo.id">
+                <input class="title-input" v-model="newTodo.title" type="text" placeholder="New Todo Title" /><br />
+                <br />
+                <textarea class="description-input" v-model="newTodo.description" placeholder="New Todo Description"></textarea><br />
+                <label for="image">Select image:</label>
+                <input id="image" type="file" @change="onFileChange" />
+                <br />
+                <button type="submit">Add Todo</button>
+            </form>
 
-                    <td>
-                        {{ todo.isEditing ? '' : todo.title }}
-                        <input v-if="todo.isEditing" v-model="todo.title" type="text" @blur="updateTodo(todo)" />
-                    </td>
-                    <td>
-                        {{ todo.isEditing ? '' : todo.description }}
-                        <input v-if="todo.isEditing" v-model="todo.description" type="text" @blur="updateTodo(todo)" />
-                    </td>
-                    <td>
-                        <input type="checkbox" @change="removeTodo(todo)" />
-                    </td>
-                    <td>
-                        <button @click="editTodo(todo)">{{todo.isEditing ? 'Save' : 'Edit'}}</button>
-                    </td>
-                    <td>
-                        <img v-if="!todo.isEditing" :src="todo.imageUrl" class="todo-image" />
-                        <input v-if="todo.isEditing" type="file" @change="onEditFileChange(todo, $event)"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            
+            <div v-for="todo in todos" :key="todo.id">
 
+                <h2 @click="toggleDetails(todo)">{{ todo.title }}</h2>
+
+                <div v-if="todo.showDetails">
+
+                    
+                    <input v-if="todo.isEditing" v-model="todo.title" type="text" @blur="updateTodo(todo)" />
+
+                    <img v-if="!todo.isEditing" :src="todo.imageUrl" class="todo-image" />
+                    <input v-if="todo.isEditing" type="file" @change="onEditFileChange(todo, $event)" />
+
+                    <p>{{ todo.isEditing ? '' : todo.description }}</p>
+                    <textarea v-if="todo.isEditing" v-model="todo.description" @blur="updateTodo(todo)"></textarea>
+
+                    <input type="checkbox" @change="removeTodo(todo)" />
+
+                    <button @click="editTodo(todo)">      {{todo.isEditing ? 'Save' : 'Edit'}}</button>
+
+                </div>
+            </div>
+            
+        </div>
     </div>
 </template>
 
@@ -67,6 +57,10 @@
                 
             });
             const router = useRouter();
+
+            const toggleDetails = (todo) => {
+                todo.showDetails = !todo.showDetails;
+            };
 
             const addTodo = () => {
 
@@ -97,7 +91,8 @@
                         ...todo,
                         isEditing: false,
                         editingText: todo.title,
-                        imageUrl: todo.imageUrl
+                        imageUrl: todo.imageUrl,
+                        showDetails: false
                     }));
                 });
             };
@@ -178,6 +173,7 @@
                 removeTodo,
                 logout,
                 onEditFileChange,
+                toggleDetails,
             };
         },
     };
