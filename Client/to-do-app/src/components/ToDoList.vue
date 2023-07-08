@@ -41,6 +41,9 @@
                     <td>
                         <button @click="editTodo(todo)">{{todo.isEditing ? 'Save' : 'Edit'}}</button>
                     </td>
+                    <td>
+                        <img :src="todo.imageUrl" class="todo-image"/>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -91,6 +94,7 @@
                         ...todo,
                         isEditing: false,
                         editingText: todo.title,
+                        imageUrl: todo.imageUrl
                     }));
                 });
             };
@@ -179,8 +183,9 @@
         width: 20px;
     }
 
-    td {
-        height: auto;
+    .todo-image {
+        width: 100px;
+        height: 100px;
     }
 
 
