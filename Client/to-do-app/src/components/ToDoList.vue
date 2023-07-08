@@ -9,7 +9,7 @@
             <br />
             <textarea class="description-input" v-model="newTodo.description" placeholder="New Todo Description"></textarea><br />
             <label for="image">Select image:</label>
-            <input id="image" type="file" @change="onImage"/>
+            <input id="image" type="file" @change="onFileChange" />
             <br />
             <button type="submit">Add Todo</button>
         </form>
@@ -20,6 +20,7 @@
                     <th>Description</th>
                     <th class="completed-column">Completed</th>
                     <th class="edit-column">Edit</th>
+                    <th>Images</th>
 
                 </tr>
             </thead>
@@ -40,7 +41,6 @@
                     <td>
                         <button @click="editTodo(todo)">{{todo.isEditing ? 'Save' : 'Edit'}}</button>
                     </td>
-
                 </tr>
             </tbody>
         </table>
@@ -59,19 +59,31 @@
             const newTodo = reactive({
                 title: '',
                 description: '',
-                userid: '',
+                file: null
                 
             });
             const router = useRouter();
 
             const addTodo = () => {
-                api.createTodo(newTodo).then((response) => {
+
+                const formData = new FormData();
+                formData.append('title', newTodo.title);
+                formData.append('description', newTodo.description);
+                if (newTodo.file) {
+                    formData.append('image', newTodo.file);
+                }
+
+                api.createTodo(formData).then((response) => {
                     todos.value.push(response.data);
                     newTodo.title = '';
                     newTodo.description = '';
-                    newTodo.userid = '';
+                    newTodo.file = null;
                 });
             };
+
+            const onFileChange = (e) => {
+                newTodo.file = e.target.files[0];
+            }
 
             const getTodos = () => {
                 api.getTodos().then((response) => {
@@ -116,6 +128,7 @@
                 todos,
                 newTodo,
                 addTodo,
+                onFileChange,
                 getTodos,
                 editTodo,
                 updateTodo,

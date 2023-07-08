@@ -11,20 +11,26 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
-    console.log("Token sent with a request:", token);
     config.headers['Authorization'] = `Bearer ${token}`;
+
+    if (config.data instanceof FormData) {
+        config.headers['Content-Type'] = 'multipart/form-data';
+    } else {
+        config.headers['Content-Type'] = 'application/json';
+        config.data = JSON.stringify(config.data);
+    }
+
     return config;
 })
 
 export default {
     getTodos() {
-        const token = localStorage.getItem('token');
-        console.log("Token at the time of getTodos():", token)
+        
         return apiClient.get('/Todos');
     },
 
-    createTodo(newTodo) {
-        return apiClient.post('/Todos', newTodo)
+    createTodo(formData) {
+        return apiClient.post('/Todos', formData);
     },
 
     updateTodo(todo) {
@@ -32,7 +38,7 @@ export default {
     },
 
     removeTodo(todo) {
-        return apiClient.delete(`/Todos/${todo.id}`)
+        return apiClient.delete(`/Todos/${todo.id}`);
     }
 };
 

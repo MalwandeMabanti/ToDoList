@@ -15,6 +15,8 @@ namespace ToDoList.Models
         
         public string UserId { get; set; }
 
+        public string? ImageUrl { get; set; }
+
 
     }
 }

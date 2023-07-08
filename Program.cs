@@ -7,10 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
 using ToDoList.Data;
+using ToDoList.Filters;
 using ToDoList.Interfaces;
+using ToDoList.Models;
 using ToDoList.Services;
 
 namespace ToDoList
@@ -56,10 +59,19 @@ namespace ToDoList
             });
 
             builder.Services.AddScoped<ITodoService, TodoService>();
+            builder.Services.AddScoped<IAzureBlobService, AzureBlobService>();
+
+            builder.Services.Configure<BlobServiceSettings>(configuration.GetSection("BlobServiceSettings"));
 
             builder.Services.AddEndpointsApiExplorer();
 
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.OperationFilter<FileOperationFilter>();
+            });
 
             builder.Services.AddCors(options =>
             {

@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using ToDoList.Interfaces;
 using ToDoList.Models;
+using ToDoList.Services;
 
 namespace ToDoList.Controllers
 {
@@ -13,12 +15,16 @@ namespace ToDoList.Controllers
     [ApiController]
     public class TodosController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly ITodoService _todoService;
+        private readonly IAzureBlobService _azureBlobService;
         //string useThis = "35d1b892-75e4-4b2f-895e-558a24f495df";
 
-        public TodosController(ITodoService todoService) 
+        public TodosController(IConfiguration configuration, ITodoService todoService, IAzureBlobService azureBlobService) 
         {
+            _configuration = configuration;
             _todoService = todoService;
+            _azureBlobService = azureBlobService;
         }
 
         /// GET: api/todos
@@ -49,28 +55,40 @@ namespace ToDoList.Controllers
             return Ok(todo);
         }
 
-        [HttpPost]
-        public ActionResult<Todo> PostTodo(Todo todo)
+        [HttpPost, Consumes("multipart/form-data")]
+        public async Task<ActionResult<Todo>> PostTodo([FromForm]TodoViewModel todoViewModel)
         {
-            try
+            if (todoViewModel == null)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                Console.WriteLine($"User ID: {userId}");
-
-                todo.UserId = userId;
-
-                _todoService.AddTodo(todo, userId);
-
-                return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
+                return BadRequest("Invalid request");
             }
-            catch(Exception ex)
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string imageUrl = null;
+
+            // Retrieve the container name from your configuration
+            string containerName = _configuration.GetValue<string>("Azure:BlobStorage:ContainerName");
+
+            if (todoViewModel.Image != null)
             {
-                Console.WriteLine(ex.ToString());
-                throw;
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(todoViewModel.Image.FileName);
+
+                // Pass the container name to the UploadFileAsync method
+                imageUrl = await _azureBlobService.UploadFileAsync(containerName, todoViewModel.Image, fileName);
             }
-            return Ok();
-            
+
+            // After that, you can create the Todo object and populate the fields with the ViewModel data
+            Todo todo = new Todo
+            {
+                Title = todoViewModel.Title,
+                Description = todoViewModel.Description,
+                UserId = userId,
+                ImageUrl = imageUrl
+            };
+
+            _todoService.AddTodo(todo, userId);
+
+            return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
         }
 
         // PUT: api/todos/{id}
@@ -83,7 +101,8 @@ namespace ToDoList.Controllers
             }
 
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //string userId = useThis;
+
+
             _todoService.UpdateTodo(todo, userId);
             
             return NoContent();

@@ -11,7 +11,7 @@ using ToDoList.Data;
 namespace ToDoList.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230706181029_TodoList")]
+    [Migration("20230707200148_TodoList")]
     partial class TodoList
     {
         /// <inheritdoc />
@@ -33,6 +33,9 @@ namespace ToDoList.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
