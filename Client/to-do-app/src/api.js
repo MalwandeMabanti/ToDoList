@@ -24,6 +24,11 @@ apiClient.interceptors.request.use((config) => {
 })
 
 export default {
+
+    getAllTodos() {
+        return apiClient.get('/Todos/all');
+    },
+
     getTodos() {
         
         return apiClient.get('/Todos');

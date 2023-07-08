@@ -10,7 +10,7 @@ using ToDoList.Services;
 
 namespace ToDoList.Controllers
 {
-    [Authorize]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class TodosController : ControllerBase
@@ -27,7 +27,18 @@ namespace ToDoList.Controllers
             _azureBlobService = azureBlobService;
         }
 
-        /// GET: api/todos
+        [HttpGet("all")]
+        public ActionResult<IEnumerable<Todo>> GetAll() 
+        {
+            var allTodos = _todoService.GetAll();
+
+            return Ok(allTodos);
+        }
+
+
+
+        // GET: api/todos
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<Todo>> GetTodos()
         {
@@ -40,6 +51,7 @@ namespace ToDoList.Controllers
 
 
         // GET: api/todos/{id}
+        [Authorize]
         [HttpGet("{id}")]
         public ActionResult<Todo> GetTodo(int id)
         {
@@ -55,6 +67,7 @@ namespace ToDoList.Controllers
             return Ok(todo);
         }
 
+        [Authorize]
         [HttpPost, Consumes("multipart/form-data")]
         public async Task<ActionResult<Todo>> PostTodo([FromForm]TodoViewModel todoViewModel)
         {
@@ -94,6 +107,7 @@ namespace ToDoList.Controllers
         }
 
         // PUT: api/todos/{id}
+        [Authorize]
         [HttpPut("{id}"), Consumes("multipart/form-data")]
         public async Task<IActionResult> PutTodo(int id, [FromForm]TodoViewModel todoViewModel)
         {
@@ -130,11 +144,13 @@ namespace ToDoList.Controllers
 
 
             _todoService.UpdateTodo(todo, userId);
+           
             
             return NoContent();
         }
 
         // DELETE: api/todos/{id}
+        [Authorize]
         [HttpDelete("{id}")]
         public IActionResult DeleteTodo(int id)
         {

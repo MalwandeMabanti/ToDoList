@@ -4,6 +4,7 @@ namespace ToDoList.Interfaces
 {
     public interface ITodoService 
     {
+        List<Todo> GetAll();
         List<Todo> GetTodosByUserId(string userId);
         Todo GetTodoById(int id, string userId);
         void AddTodo(Todo todo, string userId);

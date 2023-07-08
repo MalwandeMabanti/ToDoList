@@ -16,6 +16,11 @@ namespace ToDoList.Services
             this.context = context;
         }
 
+        public List<Todo> GetAll()
+        {
+            return this.context.Set<Todo>().ToList();
+        }
+
 
         public List<Todo> GetTodosByUserId(string userId)
         {
